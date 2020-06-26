@@ -1,0 +1,22 @@
+{
+  "request": {
+    "scheme": "http",
+    "host": "localhost",
+    "port": 3030,
+    "method": "post",
+    "path": "/users",
+    "headers": {
+      "content-type": "application/json"
+    }
+  },
+  "response": {
+    "statusCode": 201,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "id": 1,
+      "name": "John"
+    }
+  }
+}
