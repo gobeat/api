@@ -55,7 +55,7 @@ func (c *defaultClient) Body(body interface{}) Client {
 			return c
 		}
 
-		return c.Body(bytes)
+		b = string(bytes)
 	}
 
 	c.r.Body = ioutil.NopCloser(strings.NewReader(b))
