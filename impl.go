@@ -1,11 +1,11 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -15,19 +15,15 @@ type defaultClient struct {
 	t time.Duration
 }
 
-func newClient(method string, rawurl string) Client {
-	c := &defaultClient{
-		r: new(http.Request),
+func newClient(method string, url string) Client {
+	req, e := http.NewRequest(method, url, nil)
+	if e != nil {
+		panic(e)
 	}
 
-	c.r.Method = method
-	u, e := url.Parse(rawurl)
-	if e != nil {
-		c.e = e
-	} else {
-		c.r.URL = u
+	c := &defaultClient{
+		r: req,
 	}
-	c.r.Header = make(http.Header)
 
 	return c
 }
@@ -43,22 +39,21 @@ func (c *defaultClient) Method(method string) Client {
 }
 
 func (c *defaultClient) Body(body interface{}) Client {
-	var b string
+	var buf []byte
 	if bytes, ok := body.([]byte); ok {
-		b = string(bytes)
+		buf = bytes
 	} else if str, ok := body.(string); ok {
-		b = str
+		buf = []byte(str)
 	} else {
 		bytes, e := json.Marshal(body)
 		if e != nil {
 			c.e = e
 			return c
 		}
-
-		b = string(bytes)
+		buf = bytes
 	}
 
-	c.r.Body = ioutil.NopCloser(strings.NewReader(b))
+	c.r.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
 	return c
 }
 
@@ -83,7 +78,7 @@ func (c *defaultClient) Use(m Middleware) Client {
 }
 
 func (c *defaultClient) Timeout(timeout time.Duration) Client {
-
+	c.t = timeout
 	return c
 }
 
